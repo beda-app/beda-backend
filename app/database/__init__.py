@@ -16,8 +16,8 @@ TORTOISE_ORM = {
 }
 
 
-async def init():
-    await Tortoise.init(TORTOISE_ORM)
+async def init(config: dict = TORTOISE_ORM):  # noqa
+    await Tortoise.init(config)
     await Tortoise.generate_schemas(safe=True)
 
 

@@ -18,6 +18,7 @@ router = APIRouter()
 
 @router.post("/register", response_model=RegisterResponse)
 async def register(email: str = Body(...), password: str = Body(...)) -> Any:
+    email = email.lower()
     if await User.filter(email=email).count() != 0:
         raise HTTPException(status_code=400, detail="User already registered!")
     if not is_valid_email(email):
