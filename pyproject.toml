@@ -13,6 +13,7 @@ bcrypt = "^3.2.0"
 aerich = "^0.4.3"
 aiomysql = "^0.0.21"
 passlib = "^1.7.4"
+python-jose = {extras = ["cryptography"], version = "^3.2.0"}
 
 [tool.poetry.dev-dependencies]
 black = "^20.8b1"

@@ -1,6 +1,9 @@
 from tortoise import Tortoise
 
 from ..config import settings
+from .models import User
+
+__all__ = ("init", "close", "TORTOISE_ORM", "User")
 
 TORTOISE_ORM = {
     "connections": {"default": settings.TORTOISE_URI},
