@@ -12,7 +12,6 @@ from ...database import User
 from ...database import Weight
 from ..auth.utils import get_current_user
 from .models import WeightStatisticsElement
-from .models import WeightStatisticsResponse
 
 __all__ = ("router",)
 
