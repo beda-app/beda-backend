@@ -34,7 +34,7 @@ async def register(email: str = Body(...), password: str = Body(...)) -> Any:
 
 
 @router.post("/login")
-async def login(email: str = Body(...), password: str = Body(...)):
+async def login(email: str = Body(...), password: str = Body(...)) -> Any:
     email = email.lower()
     user = await User.filter(email=email).first()
     if user is None or not verify_password(password, user.password):
