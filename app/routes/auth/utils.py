@@ -1,12 +1,17 @@
 import re
+import time
 from datetime import datetime
 from datetime import timedelta
 from typing import Optional
 
-from jose import jwt  # type: ignore
+from fastapi import Body
+from fastapi import HTTPException
+from jose import jwt
+from jose import JWTError
 from passlib.context import CryptContext  # type: ignore
 
 from ...config import settings
+from ...database import User
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -37,5 +42,27 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     else:
         expire = datetime.utcnow() + timedelta(hours=1)
     to_encode.update({"expire": expire.timestamp()})
-    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode, settings.JWT_SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
+
+
+async def get_current_user(token: str = Body(None)) -> User:
+    invalid_token = HTTPException(status_code=401, detail="Invalid access token!")
+    if token is None:
+        raise invalid_token
+    try:
+        payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[ALGORITHM])
+    except JWTError:
+        raise invalid_token
+
+    user_id: int = payload.get("user")
+    expire: float = payload.get("expire")
+    if user_id is None or expire is None:
+        raise invalid_token
+    if time.time() > expire:
+        raise HTTPException(status_code=400, detail="Access token expired!")
+
+    user = await User.filter(id=user_id).first()
+    if user is None:
+        raise invalid_token
+    return user

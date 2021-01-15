@@ -1,7 +1,6 @@
 import random
 import string
 
-import pytest
 from fastapi.testclient import TestClient
 from jose import jwt
 
@@ -52,5 +51,4 @@ def test_login():
     email = generate_random_email()
 
     assert client.post("/auth/register", json={"email": email, "password": password}).ok
-
     assert client.post("/auth/login", json={"email": email, "password": password}).ok
