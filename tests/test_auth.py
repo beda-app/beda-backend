@@ -32,16 +32,25 @@ def test_registration():
         "/auth/register", json={"email": email, "password": password}
     )
 
+    assert response.ok
     assert (
         jwt.decode(
             response.json()["token"], settings.SECRET_KEY, algorithms=[ALGORITHM]
         ).get("user")
         == 1
     )
-    assert response.ok
 
     response = client.post(
         "/auth/register", json={"email": email, "password": password}
     )
 
     assert not response.ok
+
+
+def test_login():
+    password = generate_random_password()
+    email = generate_random_email()
+
+    assert client.post("/auth/register", json={"email": email, "password": password}).ok
+
+    assert client.post("/auth/login", json={"email": email, "password": password}).ok
