@@ -59,7 +59,7 @@ async def get_current_user(token: str = Body(None)) -> User:
     expire: float = payload.get("expire")
     if user_id is None or expire is None:
         raise invalid_token
-    if time.time() > expire:
+    if datetime.utcnow().timestamp() > expire:
         raise HTTPException(status_code=400, detail="Access token expired!")
 
     user = await User.filter(id=user_id).first()
