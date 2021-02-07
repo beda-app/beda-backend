@@ -38,5 +38,5 @@ async def login(email: str = Body(...), password: str = Body(...)) -> Any:
     email = email.lower()
     user = await User.filter(email=email).first()
     if user is None or not verify_password(password, user.password):
-        raise HTTPException(status_code=403, detail="Invalid username or password!")
+        raise HTTPException(status_code=400, detail="Invalid username or password!")
     return LoginResponse(token=create_access_token({"user": user.id}))
