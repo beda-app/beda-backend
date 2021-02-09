@@ -8,6 +8,7 @@ from ...database import User
 from .models import LoginResponse
 from .models import RegisterResponse
 from .utils import create_access_token
+from .utils import get_current_user
 from .utils import get_password_hash
 from .utils import is_password_secure
 from .utils import is_valid_email

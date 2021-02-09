@@ -41,7 +41,8 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
         expire = datetime.utcnow() + expires_delta
     else:
         expire = datetime.utcnow() + timedelta(hours=1)
-    to_encode.update({"expire": expire.timestamp()})
+
+    to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, settings.JWT_SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
@@ -51,16 +52,18 @@ async def get_current_user(token: str = Body(None)) -> User:
     if token is None:
         raise invalid_token
     try:
-        payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(
+            token,
+            settings.JWT_SECRET_KEY,
+            options={"require_exp": True},
+            algorithms=[ALGORITHM],
+        )
     except JWTError:
         raise invalid_token
 
     user_id: int = payload.get("user")
-    expire: float = payload.get("expire")
-    if user_id is None or expire is None:
+    if user_id is None:
         raise invalid_token
-    if datetime.utcnow().timestamp() > expire:
-        raise HTTPException(status_code=400, detail="Access token expired!")
 
     user = await User.filter(id=user_id).first()
     if user is None:
