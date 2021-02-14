@@ -18,7 +18,7 @@ __all__ = ("router",)
 router = APIRouter()
 
 
-@router.post("/add")
+@router.post("/add", response_model=WeightStatisticsElement)
 async def add(
     user: User = Depends(get_current_user),
     weight: float = Body(...),
@@ -30,7 +30,9 @@ async def add(
         related_user=user.id,
     )
     await weight.save()
-    return "ok"
+    return WeightStatisticsElement(
+        time=weight.time.timestamp(), weight=weight.weight, id=weight.id
+    )
 
 
 @router.post("/get", response_model=List[WeightStatisticsElement])
@@ -47,6 +49,8 @@ async def get(
         related_user=user.id, time__range=(from_time_datetime, to_time_datetime)
     )
     return [
-        WeightStatisticsElement(time=element.time.timestamp(), weight=element.weight)
+        WeightStatisticsElement(
+            time=element.time.timestamp(), weight=element.weight, id=element.id
+        )
         for element in weights
     ]
