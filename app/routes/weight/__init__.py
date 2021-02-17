@@ -1,5 +1,5 @@
+import time
 from datetime import datetime
-from datetime import timedelta
 from typing import Any
 from typing import List
 from typing import Optional
@@ -22,7 +22,7 @@ router = APIRouter()
 @router.post("/add", response_model=WeightStatisticsElement)
 async def add(
     user: User = Depends(get_current_user),
-    weight: float = Body(...),
+    weight: float = Body(..., ge=1, le=1000),
     timestamp: Optional[int] = Body(None),
 ) -> Any:
     weight = Weight(
@@ -39,8 +39,8 @@ async def add(
 @router.post("/get", response_model=List[WeightStatisticsElement])
 async def get(
     user: User = Depends(get_current_user),
-    count: int = Body(10),
-    from_time: int = Body(None),
+    count: int = Body(10, ge=1, le=200),
+    from_time: int = Body(None, ge=0, le=time.mktime(datetime.max.timetuple())),
     to_time: Optional[int] = Body(None),
 ):
     if from_time is None and to_time is None:
