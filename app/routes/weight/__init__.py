@@ -7,6 +7,7 @@ from typing import Optional
 from fastapi import APIRouter
 from fastapi import Body
 from fastapi import Depends
+from fastapi import HTTPException
 
 from ...database import User
 from ...database import Weight
@@ -38,16 +39,29 @@ async def add(
 @router.post("/get", response_model=List[WeightStatisticsElement])
 async def get(
     user: User = Depends(get_current_user),
-    from_time: int = Body(0),
+    count: int = Body(10),
+    from_time: int = Body(None),
     to_time: Optional[int] = Body(None),
 ):
-    from_time_datetime = datetime.utcfromtimestamp(from_time)
-    to_time_datetime = (
-        datetime.utcnow() if to_time is None else datetime.utcfromtimestamp(to_time)
-    )
-    weights = await Weight.filter(
-        related_user=user.id, time__range=(from_time_datetime, to_time_datetime)
-    )
+    if from_time is None and to_time is None:
+        weights = (
+            await Weight.filter(related_user=user.id).order_by("time").limit(count)
+        )
+    elif from_time is not None:
+        from_time_datetime = datetime.utcfromtimestamp(from_time)
+        to_time_datetime = (
+            datetime.utcnow() if to_time is None else datetime.utcfromtimestamp(to_time)
+        )
+        weights = (
+            await Weight.filter(
+                related_user=user.id, time__range=(from_time_datetime, to_time_datetime)
+            )
+            .order_by("time")
+            .limit(count)
+        )
+    else:
+        raise HTTPException(status_code=400, detail="Parameter ")
+
     return [
         WeightStatisticsElement(
             time=element.time.timestamp(), weight=element.weight, id=element.id
