@@ -7,4 +7,4 @@ RUN poetry config virtualenvs.create false \
     && poetry install --no-dev
 ADD . /app/
 
-CMD ["uvicorn", "app:app", "--port", "80"]
+CMD ["uvicorn", "app:app", "--port", "80", "--host", "0.0.0.0"]
