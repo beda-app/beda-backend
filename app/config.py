@@ -1,3 +1,5 @@
+from typing import List
+
 from pydantic import BaseSettings
 
 __all__ = ("settings",)
@@ -5,6 +7,7 @@ __all__ = ("settings",)
 
 class Settings(BaseSettings):
     TORTOISE_URI: str = "sqlite://:memory:"
+    CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost"]
 
     # openssl rand -hex 32
     JWT_SECRET_KEY: str = (
